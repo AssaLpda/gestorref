@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Panel de Referidos - Casino Azul</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <div class="container py-4">
+    <h1 class="text-center mb-4">🎰 Panel de Referidos</h1>
+
+    <!-- Formulario agregar referido -->
+    <div id="nuevoReferido" class="mb-4 p-3 border rounded bg-light">
+      <h3 class="mb-3">➕ Agregar nuevo referido</h3>
+      <form id="formAgregarReferido" class="row g-3">
+        <div class="col-md-6 col-lg-4">
+          <label for="inputReferidor" class="form-label">Referidor (usuario ID)</label>
+          <input type="text" class="form-control" id="inputReferidor" required />
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <label for="inputUsuario" class="form-label">Usuario referido</label>
+          <input type="text" class="form-control" id="inputUsuario" required />
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <label for="inputCarga" class="form-label">Carga ($)</label>
+          <input type="number" class="form-control" id="inputCarga" min="0" required />
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <label for="inputUsoBonificacion" class="form-label">Usó bonificación</label>
+          <select class="form-select" id="inputUsoBonificacion">
+            <option value="false" selected>No</option>
+            <option value="true">Sí</option>
+          </select>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <label for="inputApuesta" class="form-label">Apuesta del referidor esta semana ($)</label>
+          <input type="number" class="form-control" id="inputApuesta" min="0" required />
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn btn-success">Agregar Referido</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Filtros -->
+    <div id="filtros" class="mb-4 p-3 border rounded bg-light">
+      <form id="formFiltros" class="row g-3 align-items-end">
+        <div class="col-md-4 col-lg-3">
+          <label for="filtroNombre" class="form-label">Buscar Referidor</label>
+          <input type="text" class="form-control" id="filtroNombre" placeholder="Nombre o parte..." />
+        </div>
+        <div class="col-md-4 col-lg-3">
+          <label for="filtroSorteo" class="form-label">Participa Sorteo</label>
+          <select class="form-select" id="filtroSorteo">
+            <option value="todos" selected>Todos</option>
+            <option value="si">Sí</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+        <div class="col-md-4 col-lg-3">
+          <label for="filtroMinReferidos" class="form-label">Mínimo Referidos Válidos</label>
+          <input type="number" class="form-control" id="filtroMinReferidos" min="0" value="0" />
+        </div>
+        <div class="col-md-12 col-lg-3 d-flex gap-2">
+          <button type="submit" class="btn btn-primary flex-grow-1">Aplicar</button>
+          <button type="button" id="btnLimpiar" class="btn btn-secondary flex-grow-1">Limpiar</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Tabla -->
+    <div class="table-responsive">
+      <table id="tablaReferidos" class="table table-striped table-hover align-middle">
+        <thead class="table-primary">
+          <tr>
+            <th>Referidor</th>
+            <th># Referidos válidos</th>
+            <th>Carga Total válida ($)</th>
+            <th>Apuesta Personal ($)</th>
+            <th>Participa Sorteo</th>
+            <th>Detalle</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Filas dinámicas -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Bootstrap Bundle JS (popper + bootstrap) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="app.js"></script>
+  <script src="duplicados.js"></script>
+  <button onclick="unificarReferidoresDuplicados()">🧹 Unificar duplicados</button>
+
+</body>
+</html>
+
+

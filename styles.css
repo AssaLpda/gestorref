@@ -1,0 +1,26 @@
+.ok {
+  color: green;
+  font-weight: 600;
+}
+
+.not-ok {
+  color: red;
+  font-weight: 600;
+}
+
+.detalle-referidos {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.detalle-referidos th, .detalle-referidos td {
+  border: 1px solid #dee2e6;
+  padding: 6px;
+}
+
+.hidden {
+  display: none;
+}
+
+
