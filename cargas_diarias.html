@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Cargas Diarias por Usuario</title>
+  <title>Cargas Diarias</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" />
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center p-4">
+<body class="bg-black text-white min-h-screen p-4 flex flex-col items-center">
 <div>
-  <h1 class="text-3xl font-bold mb-6 text-center">📈 Cargas Diarias por Usuario</h1>
+ 
 <a href="pagos_diarios.html" class="mb-6 inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow">
   Ir a Retiros
 </a>
@@ -21,46 +21,106 @@
 </a>
 </div>
 
+<h1 class="text-3xl font-bold mb-6">📈 Panel de Cargas Diarias</h1>
 
-  <!-- Formulario de carga -->
-  <form id="formCarga" class="w-full max-w-md bg-gray-800 p-6 rounded-xl shadow-md mb-8 space-y-4">
+  <!-- Panel de carga y usuario -->
+  <div class="w-full max-w-5xl flex flex-col lg:flex-row gap-6 mb-6">
+
+    <!-- Panel de Carga -->
+    <div class="w-full lg:w-1/2 bg-gray-900 rounded-xl p-4 shadow-lg space-y-4">
+      <h2 class="text-lg font-semibold">Panel de Carga</h2>
+      <form id="formCarga" class="space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <input id="usuario" type="text" placeholder="Usuario" required class="p-2 rounded bg-gray-800 border border-gray-700 placeholder-gray-400 text-sm">
+          <input id="monto" type="number" placeholder="Monto $" required min="0" step="0.01" class="p-2 rounded bg-gray-800 border border-gray-700 placeholder-gray-400 text-sm">
+          <select id="bonificacion" class="p-2 rounded bg-gray-800 border border-gray-700 text-sm col-span-2">
+            <option value="0">Sin Bonificación</option>
+            <option value="10">10%</option>
+            <option value="15">15%</option>
+            <option value="20">20%</option>
+            <option value="25">25%</option>
+            <option value="30">30%</option>
+            <option value="40">40%</option>
+            <option value="50">50%</option>
+            <option value="100">100%</option>
+          </select>
+        </div>
+
+        <label class="flex items-center space-x-2 text-sm">
+          <input type="checkbox" id="bonifReferido" class="accent-yellow-400" />
+          <span>Bonificación de Referido (+$3000)</span>
+        </label>
+
+        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 py-2 rounded font-bold text-white flex items-center justify-center gap-2">
+          <i class="bi bi-plus-circle"></i> Registrar Carga
+        </button>
+      </form>
+    </div>
+
+    <!-- Panel de Usuario -->
+    <div class="w-full lg:w-1/2 bg-gray-900 rounded-xl p-4 shadow-lg space-y-4">
+      <h2 class="text-lg font-semibold">Panel de Usuario</h2>
+      <div class="flex gap-2">
+        <input id="usuarioBusqueda" type="text" placeholder="Buscar usuario" class="flex-grow p-2 rounded bg-gray-800 border border-gray-700 placeholder-gray-400 text-sm">
+        <button id="buscarHistorialBtn" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded flex items-center gap-2">
+          <i class="bi bi-search"></i> Buscar
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Filtros -->
+  <div class="flex flex-wrap gap-4 justify-center mt-2 mb-4 text-sm">
     <div>
-      <label for="usuario" class="block mb-1 font-semibold">Usuario</label>
-      <input type="text" id="usuario" required class="w-full p-2 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ingrese usuario" />
+      <label for="filtroFecha" class="block mb-1">Fecha</label>
+      <input type="date" id="filtroFecha" class="p-2 rounded bg-gray-800 border border-gray-600 text-white" />
     </div>
     <div>
-      <label for="monto" class="block mb-1 font-semibold">Monto ($)</label>
-      <input type="number" id="monto" required min="0" step="0.01" class="w-full p-2 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ingrese monto" />
+      <label for="filtroTurno" class="block mb-1">Turno</label>
+      <select id="filtroTurno" class="p-2 rounded bg-gray-800 border border-gray-600 text-white">
+        <option value="todos">Todos</option>
+        <option value="turno1">02:00 - 10:00</option>
+        <option value="turno2">10:00 - 18:00</option>
+        <option value="turno3">18:00 - 02:00</option>
+      </select>
     </div>
-    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded text-white font-semibold flex items-center justify-center gap-2">
-      <i class="bi bi-plus-circle"></i> Registrar Carga
-    </button>
-  </form>
+  </div>
 
-  <!-- Tabla cargas diarias -->
-  <div class="w-full max-w-4xl overflow-auto mb-8 rounded-xl bg-gray-800 shadow-md">
-    <table class="w-full table-auto min-w-[600px]">
-      <thead class="bg-gray-700 text-left">
+  <!-- Tabla de cargas -->
+  <div class="w-full max-w-5xl overflow-auto bg-gray-900 rounded-xl shadow-md mb-6">
+    <table class="w-full text-sm table-auto min-w-[600px]">
+      <thead class="bg-gray-800 text-left">
         <tr>
           <th class="p-3">Usuario</th>
           <th class="p-3">Monto</th>
           <th class="p-3">Fecha y Hora</th>
         </tr>
       </thead>
-      <tbody id="tablaCargas">
-        <!-- Registros dinámicos -->
+      <tbody id="tablaCargas" class="text-white">
+        <!-- Cargas dinámicas -->
       </tbody>
     </table>
   </div>
 
-  <!-- Total diario -->
-  <div class="text-lg font-semibold mb-6 max-w-4xl w-full text-right pr-4">
-    Total cargas hoy: $<span id="totalCargas">0</span>
+  <!-- Totales -->
+  <div class="max-w-5xl w-full text-right pr-4 text-lg space-y-1">
+    <div>Total cargas hoy: $<span id="totalCargas">0</span></div>
+    <div class="text-yellow-400">Total bonificaciones: $<span id="totalBonificaciones">0</span></div>
   </div>
 
-  <!-- Contenedor para paginación -->
-  <div id="contenedorPaginacion" class="flex justify-center gap-2 mb-6"></div>
+  <!-- Paginación -->
+  <div id="contenedorPaginacion" class="flex justify-center gap-2 mt-6"></div>
 
+  <!-- Modal Historial -->
+  <div id="modalHistorial" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
+    <div class="bg-gray-900 rounded-lg max-w-lg w-full p-6 relative">
+      <button id="cerrarModal" class="absolute top-3 right-3 text-white text-2xl font-bold hover:text-red-500">&times;</button>
+      <div id="contenidoModalHistorial" class="text-white max-h-96 overflow-auto"></div>
+    </div>
+  </div>
+
+  <!-- Firebase y Script -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="cargas_diarias.js"></script>
