@@ -1,4 +1,4 @@
-// Config Firebase (usa tu propia config)
+// Config Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyCZkZQzaKWKdohLeCt_7CNT5krPo6jGrMY",
   authDomain: "base-de-datos-referidos.firebaseapp.com",
@@ -15,13 +15,37 @@ const db = firebase.firestore();
 const getFechaActual = () => new Date().toISOString().split('T')[0];
 const getTimestampActual = () => new Date();
 
-// DOM
+function formatearFechaHora24(fecha) {
+  const dia = fecha.toLocaleDateString("es-AR");
+  const hora = fecha.toLocaleTimeString("es-AR", {
+    hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
+  return `${dia} ${hora}`;
+}
+
+// DOM Elements
 const formCarga = document.getElementById("formCarga");
 const usuarioInput = document.getElementById("usuario");
 const montoInput = document.getElementById("monto");
+const bonificacionInput = document.getElementById("bonificacion");
+const bonifReferidoInput = document.getElementById("bonifReferido");
+const buscarHistorialBtn = document.getElementById("buscarHistorialBtn");
+const usuarioBusquedaInput = document.getElementById("usuarioBusqueda");
+const resultadoHistorialDiv = document.getElementById("resultadoHistorial");
+
+const modalHistorial = document.getElementById("modalHistorial");
+const contenidoModalHistorial = document.getElementById("contenidoModalHistorial");
+const cerrarModalBtn = document.getElementById("cerrarModal");
+
 const tablaCargas = document.getElementById("tablaCargas");
 const totalCargas = document.getElementById("totalCargas");
 const contenedorPaginacion = document.getElementById("contenedorPaginacion");
+
+const filtroFechaInput = document.getElementById("filtroFecha");
+const filtroTurnoSelect = document.getElementById("filtroTurno");
 
 // Estado
 let cargas = [];
@@ -29,28 +53,45 @@ let paginaActual = 1;
 const registrosPorPagina = 10;
 let filtroUsuario = "";
 
-// Cargar cargas del día actual
-async function cargarCargasDelDia() {
-  const fechaHoy = getFechaActual();
+// Cargar cargas según fecha
+async function cargarCargasPorFecha(fecha) {
+  if (!fecha) fecha = getFechaActual();
+  filtroFechaInput.value = fecha;
 
   const snapshot = await db.collection("cargas")
     .orderBy("timestamp", "desc")
     .get();
 
   cargas = snapshot.docs
-    .map(doc => ({ id: doc.id, ...doc.data(), timestamp: doc.data().timestamp.toDate() }))
-    .filter(c => c.fecha === fechaHoy);
+    .map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      timestamp: doc.data().timestamp.toDate()
+    }))
+    .filter(c => c.fecha === fecha);
 
   paginaActual = 1;
   renderTabla();
 }
 
-// Mostrar tabla con paginación y filtro
+// Filtro por turno horario
+function estaEnTurno(timestamp, turno) {
+  const hora = timestamp.getHours();
+  switch (turno) {
+    case "turno1": return (hora >= 2 && hora < 10);
+    case "turno2": return (hora >= 10 && hora < 18);
+    case "turno3": return (hora >= 18 || hora < 2);
+    default: return true;
+  }
+}
+
+// Render de tabla
 function renderTabla() {
   tablaCargas.innerHTML = "";
 
   const cargasFiltradas = cargas.filter(c =>
-    c.usuario.toLowerCase().includes(filtroUsuario.toLowerCase())
+    c.usuario.toLowerCase().includes(filtroUsuario.toLowerCase()) &&
+    estaEnTurno(c.timestamp, filtroTurnoSelect.value)
   );
 
   const totalPaginas = Math.ceil(cargasFiltradas.length / registrosPorPagina);
@@ -62,27 +103,47 @@ function renderTabla() {
   const paginaCargas = cargasFiltradas.slice(inicio, fin);
 
   paginaCargas.forEach(carga => {
-    const fila = document.createElement("tr");
-    fila.innerHTML = `
-      <td class="p-3">${carga.usuario}</td>
-      <td class="p-3">$${carga.monto.toLocaleString()}</td>
-      <td class="p-3">${carga.timestamp.toLocaleString()}</td>
-    `;
-    tablaCargas.appendChild(fila);
+    const montoBonificado = carga.monto * (carga.bonificacion ? carga.bonificacion / 100 : 0);
+    tablaCargas.appendChild(crearFilaCarga(carga, montoBonificado));
   });
 
-  // Total acumulado de cargas filtradas (no solo la página)
   const total = cargasFiltradas.reduce((acc, c) => acc + c.monto, 0);
   totalCargas.textContent = total.toLocaleString();
+
+  const totalBonif = cargasFiltradas.reduce((acc, c) => {
+    const bonifPorcentaje = c.monto * (c.bonificacion ? c.bonificacion / 100 : 0);
+    const bonifReferido = c.bonifReferido ? 3000 : 0;
+    return acc + bonifPorcentaje + bonifReferido;
+  }, 0);
+  document.getElementById("totalBonificaciones").textContent = totalBonif.toLocaleString();
 
   renderPaginacion(totalPaginas);
 }
 
-// Crear controles de paginación
+// Crear fila para la tabla
+function crearFilaCarga(carga, montoBonificado) {
+  const fila = document.createElement("tr");
+
+  const bonifReferidoBadge = carga.bonifReferido
+    ? `<span class="ml-2 px-2 py-1 text-yellow-900 bg-yellow-400 rounded font-semibold text-xs">+ $3000 (Referido)</span>`
+    : "";
+
+  fila.innerHTML = `
+    <td class="p-3">${carga.usuario}</td>
+    <td class="p-3">
+      $${carga.monto.toLocaleString()}
+      ${montoBonificado > 0 ? `<span class="ml-2 px-2 py-1 text-yellow-900 bg-yellow-300 rounded font-semibold text-sm">+ $${montoBonificado.toLocaleString()} (Bonif. ${carga.bonificacion}%)</span>` : ""}
+      ${bonifReferidoBadge}
+    </td>
+    <td class="p-3">${formatearFechaHora24(carga.timestamp)}</td>
+  `;
+  return fila;
+}
+
+// Paginación
 function renderPaginacion(totalPaginas) {
   contenedorPaginacion.innerHTML = "";
 
-  // Anterior
   const btnPrev = document.createElement("button");
   btnPrev.textContent = "« Anterior";
   btnPrev.disabled = paginaActual === 1;
@@ -97,7 +158,6 @@ function renderPaginacion(totalPaginas) {
   });
   contenedorPaginacion.appendChild(btnPrev);
 
-  // Números página
   for (let i = 1; i <= totalPaginas; i++) {
     const btn = document.createElement("button");
     btn.textContent = i;
@@ -111,7 +171,6 @@ function renderPaginacion(totalPaginas) {
     contenedorPaginacion.appendChild(btn);
   }
 
-  // Siguiente
   const btnNext = document.createElement("button");
   btnNext.textContent = "Siguiente »";
   btnNext.disabled = paginaActual === totalPaginas || totalPaginas === 0;
@@ -127,11 +186,13 @@ function renderPaginacion(totalPaginas) {
   contenedorPaginacion.appendChild(btnNext);
 }
 
-// Evento submit para registrar carga nueva
+// Registrar carga
 formCarga.addEventListener("submit", async (e) => {
   e.preventDefault();
   const usuario = usuarioInput.value.trim();
   const monto = parseFloat(montoInput.value);
+  const bonificacion = parseInt(bonificacionInput.value, 10) || 0;
+  const bonifReferido = bonifReferidoInput.checked;
   const fecha = getFechaActual();
   const timestamp = getTimestampActual();
 
@@ -140,19 +201,105 @@ formCarga.addEventListener("submit", async (e) => {
     return;
   }
 
-  await db.collection("cargas").add({ usuario, monto, fecha, timestamp });
+  await db.collection("cargas").add({
+    usuario,
+    monto,
+    bonificacion,
+    bonifReferido,
+    fecha,
+    timestamp
+  });
+
   formCarga.reset();
-  cargarCargasDelDia();
+  cargarCargasPorFecha(filtroFechaInput.value);
 });
 
-// Opcional: si quieres un input filtro para el usuario, lo puedes agregar al HTML y aquí escucharlo para filtrar.
-// Por ejemplo: 
-// document.getElementById("filtroUsuarioCarga").addEventListener("input", (e) => {
-//   filtroUsuario = e.target.value;
-//   paginaActual = 1;
-//   renderTabla();
-// });
+// Filtros
+filtroFechaInput.addEventListener("change", () => cargarCargasPorFecha(filtroFechaInput.value));
+filtroTurnoSelect.addEventListener("change", () => {
+  paginaActual = 1;
+  renderTabla();
+});
 
+// Modal
+function abrirModal() {
+  modalHistorial.classList.remove("hidden");
+}
+function cerrarModal() {
+  modalHistorial.classList.add("hidden");
+}
+cerrarModalBtn.addEventListener("click", cerrarModal);
+modalHistorial.addEventListener("click", (e) => {
+  if (e.target === modalHistorial) cerrarModal();
+});
 
-// Carga inicial
-cargarCargasDelDia();
+// Buscar historial unificado
+buscarHistorialBtn.addEventListener("click", async () => {
+  const usuarioBuscado = usuarioBusquedaInput.value.trim();
+  if (!usuarioBuscado) {
+    alert("Por favor ingresa un usuario para buscar.");
+    return;
+  }
+
+  contenidoModalHistorial.innerHTML = "Buscando historial...";
+
+  try {
+    const [cargasSnap, pagosSnap] = await Promise.all([
+      db.collection("cargas").where("usuario", "==", usuarioBuscado).get(),
+      db.collection("pagos").where("usuario", "==", usuarioBuscado).get()
+    ]);
+
+    const movimientos = [];
+
+    cargasSnap.forEach(doc => {
+      const data = doc.data();
+      movimientos.push({
+        tipo: "carga",
+        monto: data.monto,
+        bonificacion: data.bonificacion,
+        bonifReferido: data.bonifReferido,
+        timestamp: data.timestamp.toDate()
+      });
+    });
+
+    pagosSnap.forEach(doc => {
+      const data = doc.data();
+      movimientos.push({
+        tipo: "retiro",
+        monto: data.monto,
+        timestamp: data.timestamp.toDate()
+      });
+    });
+
+    movimientos.sort((a, b) => b.timestamp - a.timestamp);
+
+    let html = `<h3 class="font-semibold mb-2">Historial de movimientos para <strong>${usuarioBuscado}</strong>:</h3>`;
+    html += `<ul class="list-disc list-inside max-h-64 overflow-auto text-sm">`;
+
+    movimientos.forEach(mov => {
+      const fechaHora = formatearFechaHora24(mov.timestamp);
+
+      if (mov.tipo === "carga") {
+        const bonif = mov.bonificacion ? mov.monto * (mov.bonificacion / 100) : 0;
+        const bonoRef = mov.bonifReferido ? 3000 : 0;
+        let bonifTexto = "";
+        if (bonif > 0) bonifTexto += ` + <span class="text-yellow-400">Bonif. $${bonif.toLocaleString()}</span>`;
+        if (bonoRef > 0) bonifTexto += ` + <span class="text-yellow-400">Bonif. Referido $${bonoRef.toLocaleString()}</span>`;
+        html += `<li>${fechaHora} - $${mov.monto.toLocaleString()}${bonifTexto}</li>`;
+      } else {
+        html += `<li class="text-red-400">${fechaHora} - RETIRO: $${mov.monto.toLocaleString()}</li>`;
+      }
+    });
+
+    html += `</ul>`;
+    contenidoModalHistorial.innerHTML = html;
+    abrirModal();
+  } catch (err) {
+    console.error("Error:", err);
+    contenidoModalHistorial.innerHTML = `<p class="text-red-500">Error al obtener historial.</p>`;
+    abrirModal();
+  }
+});
+
+// Inicializar
+cargarCargasPorFecha(filtroFechaInput.value);
