@@ -4,34 +4,32 @@
   <meta charset="UTF-8" />
   <title>Panel de Referidos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Bootstrap CSS -->
+
+  <!-- Bootstrap & Tailwind -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Estilos personalizados -->
   <link rel="stylesheet" href="styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" />
-
 </head>
 <body>
-  <div class="container py-4">
-    <h1 class="text-center mb-4">🎰 Panel de Referidos</h1>
-    <div class="d-flex justify-content-end gap-2 mb-3"
-     <!-- Botones de navegación principales -->
+
+  <!-- Navegación principal -->
   <div class="bg-dark py-3 px-4 mb-4 shadow-sm">
     <div class="container d-flex flex-wrap gap-3 justify-content-center justify-content-md-start">
-      <a href="cargas_diarias.html" class="btn btn-warning fw-bold">
-        Ir a Cargas
-      </a>
-      <a href="pagos_diarios.html" class="btn btn-success fw-bold">
-        Ir a Retiros
-      </a>
-      <a href="https://gestorchat.vercel.app/" class="btn btn-primary fw-bold">
-        Ir al BotChat
-      </a>
+      <a href="cargas_diarias.html" class="btn btn-warning fw-bold">Ir a Cargas</a>
+      <a href="pagos_diarios.html" class="btn btn-success fw-bold">Ir a Retiros</a>
+      <a href="https://gestorchat.vercel.app/" class="btn btn-primary fw-bold">Ir al BotChat</a>
     </div>
   </div>
 
-    <!-- Formulario agregar referido -->
+  <!-- Contenido principal -->
+  <div class="container py-4">
+    <h1 class="text-center mb-4">🎰 Panel de Referidos</h1>
+
+    <!-- Formulario nuevo referido -->
     <div id="nuevoReferido" class="mb-4 p-3 border rounded bg-light">
       <h3 class="mb-3">➕ Agregar nuevo referido</h3>
       <form id="formAgregarReferido" class="row g-3">
@@ -90,7 +88,7 @@
       </form>
     </div>
 
-    <!-- Tabla -->
+    <!-- Tabla de referidos -->
     <div class="table-responsive">
       <table id="tablaReferidos" class="table table-striped table-hover align-middle">
         <thead class="table-primary">
@@ -110,38 +108,38 @@
     </div>
   </div>
 
-  <!-- Bootstrap Bundle JS (popper + bootstrap) -->
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="app.js"></script>
   <script src="duplicados.js"></script>
+
   <button onclick="unificarReferidoresDuplicados()">🧹 Unificar duplicados</button>
 
   <script>
-    // Esperar a que el DOM esté listo
     document.addEventListener("DOMContentLoaded", function() {
-      // Proteger acceso al panel
+      // Verificar login
       if (!sessionStorage.getItem("usuarioLogueado")) {
-        window.location.href = "index.html"; // Cambia si tu login es otro archivo
+        window.location.href = "index.html";
         return;
       }
 
-      // Botón cerrar sesión
-      document.getElementById("cerrarSesionBtn").addEventListener("click", () => {
+      // Cerrar sesión
+      document.getElementById("cerrarSesionBtn")?.addEventListener("click", () => {
         sessionStorage.removeItem("usuarioLogueado");
         window.location.href = "index.html";
       });
 
-      // Botón ir a Gestor Chat
-      document.getElementById("irAGestorChat").addEventListener("click", () => {
+      // Ir a GestorChat
+      document.getElementById("irAGestorChat")?.addEventListener("click", () => {
         window.location.href = "https://gestorchat.vercel.app/";
       });
     });
   </script>
-
 </body>
 </html>
+
 
 
 
