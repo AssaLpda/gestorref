@@ -1,0 +1,104 @@
+/* Estilos para modo oscuro integrados directo en el head para que se note la idea */
+body {
+  background-color: #121212;
+  color: #e0e0e0;
+  font-family: 'Roboto', sans-serif;
+}
+
+.container {
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.8);
+}
+
+/* Para div con formulario y filtros */
+#nuevoReferido, #filtros {
+  background-color: #2a2a2a !important;
+  border-color: #444 !important;
+  color: #ddd;
+  border-radius: 10px;
+}
+
+/* Etiquetas */
+label, h1, h3 {
+  color: #f0f0f0;
+}
+
+/* Inputs y selects */
+input.form-control, select.form-select, textarea {
+  background-color: #2c2f33 !important;
+  color: #eee !important;
+  border: 1px solid #555 !important;
+  border-radius: 6px;
+  padding: 8px;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input.form-control:focus, select.form-select:focus, textarea:focus {
+  border-color: #4a90e2 !important;
+  box-shadow: 0 0 8px #4a90e2 !important;
+  background-color: #222 !important;
+  color: #fff !important;
+}
+
+/* Tabla mejorada */
+table.table {
+  color: #e0e0e0;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: #222;
+}
+
+.table-hover > tbody > tr:hover {
+  background-color: #333;
+  transition: background-color 0.2s;
+}
+
+thead.table-primary {
+  background-color: #333 !important;
+  color: #eee !important;
+}
+
+th, td {
+  border-color: #555 !important;
+  text-align: center;
+  vertical-align: middle;
+  padding: 10px;
+}
+
+/* Otros textos específicos */
+.ok {
+  color: #4caf50;
+  font-weight: 600;
+}
+
+.not-ok {
+  color: #f44336;
+  font-weight: 600;
+}
+
+.detalle-referidos {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.detalle-referidos th, .detalle-referidos td {
+  border: 1px solid #555;
+  padding: 6px;
+  color: #ddd;
+}
+
+.hidden {
+  display: none;
+}
+
+
+
