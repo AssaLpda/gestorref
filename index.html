@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login Gestor</title>
+  <link rel="stylesheet" href="./style.css" />
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+ <body>
+<!-- partial:index.partial.html -->
+<div class="box">
+  <div class="login">
+    <div class="loginBx">
+      <h2>
+        <i class="fa-solid fa-right-to-bracket"></i>
+        Login
+        <i class="fa-solid fa-heart"></i>
+      </h2>
+      <form id="loginForm">
+          <input type="text" id="username" placeholder="Username" required />
+          <input type="password" id="password" placeholder="Password" required />
+          <input type="submit" value="Sign in" />
+        </form>
+        <a href="#">Forgot Password</a>
+        <a href="#">Sign up</a>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- partial -->
+
+  <script>
+    // Si ya está logueado, redirigir directo al panel
+    if (sessionStorage.getItem("usuarioLogueado")) {
+      window.location.href = "panel-referidos.html";
+    }
+
+    const usuariosValidos = {
+      admin: "clave123",
+      user: "hola123",
+      assa: "hola123",
+      lumi: "hola123",
+    };
+
+    document.getElementById("loginForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const user = document.getElementById("username").value.trim();
+      const pass = document.getElementById("password").value;
+
+      if (usuariosValidos[user] && usuariosValidos[user] === pass) {
+        sessionStorage.setItem("usuarioLogueado", user);
+        window.location.href = "panel-referidos.html";
+      } else {
+        alert("Usuario o contraseña incorrectos");
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+
