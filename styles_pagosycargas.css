@@ -1,0 +1,18 @@
+@keyframes pulseScale {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.btn-anim {
+  background-color: #22c55e !important; /* verde */
+  color: white !important;
+  animation: pulseScale 0.6s ease;
+  pointer-events: none; /* para que no se pueda clicar mientras dura la anim */
+}

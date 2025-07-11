@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión de Pagos</title>
+  <link rel="stylesheet" href="styles_pagosycargas.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" />
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center px-4 py-8">
+
+  <div>><h1 class="text-3xl font-bold mb-6 text-center">💰 Gestión de Pagos</h1>
+<a href="cargas_diarias.html" class="mb-6 inline-block bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded shadow">
+  Ir a Cargas
+</a>
+<a href="panel_referidos.html" class="mb-6 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded shadow">
+  Ir al Panel de Referidos
+</a>
+<a href="https://gestorchat.vercel.app/" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow">
+  Ir al BotChat
+</a>
+</div>
+
+
+  <!-- Formulario -->
+  <form id="formPago" class="w-full max-w-xl bg-gray-800 p-6 rounded-xl shadow-md mb-8 space-y-4">
+    <div class="flex flex-col sm:flex-row sm:space-x-4">
+      <div class="flex-1 mb-4 sm:mb-0">
+        <label class="block mb-1">Usuario</label>
+        <input type="text" id="usuario" required class="w-full p-2 bg-gray-700 border border-gray-600 rounded" />
+      </div>
+      <div class="flex-1 mb-4 sm:mb-0">
+        <label class="block mb-1">Monto ($)</label>
+        <input type="number" id="monto" required class="w-full p-2 bg-gray-700 border border-gray-600 rounded" />
+      </div>
+    </div>
+    <div>
+      <label class="block mb-1">Nota (opcional)</label>
+      <input type="text" id="nota" class="w-full p-2 bg-gray-700 border border-gray-600 rounded" />
+    </div>
+    <button type="submit" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-white w-full text-center">
+      <i class="bi bi-plus-circle"></i> Registrar Pago
+    </button>
+  </form>
+  <!-- Consulta disponible para retiro -->
+<div class="consulta-disponible-container p-4 bg-gray-900 text-white rounded-md max-w-md mx-auto">
+  <h2 class="text-xl font-semibold mb-4">Consultar disponible para retirar</h2>
+  
+  <input 
+    id="buscadorUsuarioDisponible" 
+    type="text" 
+    placeholder="Ingrese usuario" 
+    class="w-full p-2 mb-3 rounded bg-gray-800 border border-gray-700 text-white focus:outline-none"
+  />
+  
+  <button 
+    id="btnConsultarDisponible" 
+    class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded font-semibold"
+  >
+    Consultar
+  </button>
+  
+  <div id="resultadoDisponible" class="mt-4 text-lg font-bold"></div>
+</div>
+
+
+  <!-- Filtro por usuario con botón buscar -->
+  <div class="w-full max-w-xl mb-4 flex flex-col sm:flex-row sm:items-center sm:gap-2">
+    <label for="filtroUsuario" class="block mb-1 sm:mb-0 flex-shrink-0">Filtrar por Usuario:</label>
+    <input
+      type="text"
+      id="filtroUsuario"
+      placeholder="Escribí usuario para filtrar"
+      class="flex-grow p-2 bg-gray-700 border border-gray-600 rounded text-white mb-2 sm:mb-0"
+    />
+    <button id="btnBuscarUsuario" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white whitespace-nowrap">
+      <i class="bi bi-search"></i> Buscar
+    </button>
+  </div>
+
+  <!-- Tabla de pagos -->
+  <div class="w-full max-w-5xl overflow-x-auto mb-6">
+    <table class="w-full table-auto bg-gray-800 rounded-xl min-w-[600px]">
+      <thead class="bg-gray-700">
+        <tr>
+          <th class="p-3 text-left whitespace-nowrap">Usuario</th>
+          <th class="p-3 text-left whitespace-nowrap">Monto</th>
+          <th class="p-3 text-left whitespace-nowrap">Fecha</th>
+          <th class="p-3 text-left whitespace-nowrap">Nota</th>
+          <th class="p-3 text-left whitespace-nowrap">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tablaPagos">
+        <!-- Pagos dinámicos -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Totales -->
+  <div class="text-lg font-semibold mb-4 w-full max-w-xl text-center sm:text-left">
+    Total de pagos: $<span id="totalPagos">0</span>
+  </div>
+
+  <!-- Acciones -->
+  <div class="flex flex-wrap gap-4 justify-center w-full max-w-xl">
+    <button id="descargarCSV" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white flex items-center gap-2 whitespace-nowrap">
+      <i class="bi bi-download"></i> Descargar PDF
+    </button>
+    <button id="verHistorial" class="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded text-white flex items-center gap-2 whitespace-nowrap">
+      <i class="bi bi-clock-history"></i> Ver Historial
+    </button>
+  </div>
+
+  <!-- Firebase + Script -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="pagos_diarios.js"></script>
+</body>
+</html>
+
+
+
+
